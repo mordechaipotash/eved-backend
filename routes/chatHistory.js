@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getAllChatHistory } = require('../controllers/chatHistoryController');
+const ChatHistory = require('../models/ChatHistory');
 
-router.get('/', getAllChatHistory);
+// Get all chat history
+router.get('/', async (req, res) => {
+  try {
+    const chatHistory = await ChatHistory.find();
+    res.json(chatHistory);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
