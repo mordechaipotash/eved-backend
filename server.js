@@ -18,7 +18,7 @@ mongoose.connect(mongoUri)
         console.error('Failed to connect to MongoDB', err);
     });
 
-app.use('/api/conversations', require('./routes/conversation')); // Update the path as necessary
+app.use('/api/conversations', require('./routes/conversations')); // Update the path as necessary
 
 // Add error handling middleware
 app.use((err, req, res, next) => {
