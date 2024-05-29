@@ -1,17 +1,27 @@
 const express = require('express');
-const connectDB = require('./config/db');
-const chatHistoryRoute = require('./routes/chatHistory');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+require('dotenv').config();
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-// Connect Database
-connectDB();
+app.use(bodyParser.json());
 
-app.use(express.json({ extended: false }));
+// Import routes
+const chatHistoryRoutes = require('./routes/chatHistory');
 
-// Define Routes
-app.use('/api/chathistory', chatHistoryRoute);
+// Use routes
+app.use('/api/chathistory', chatHistoryRoutes);
 
-const PORT = process.env.PORT || 3000;
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => {
+        console.error('Could not connect to MongoDB', err);
+        process.exit(1); // Exit the process with an error code
+    });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
