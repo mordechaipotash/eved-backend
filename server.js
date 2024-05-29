@@ -1,14 +1,12 @@
+// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+require('dotenv').config();
+require('./config/db'); // Ensure this path is correct based on your project structure
+
 const app = express();
 const PORT = process.env.PORT || 3002;
-
-const mongoURI = 'mongodb+srv://mordechaipotash:6RI1JVIv0nw5wBiX@cluster0.yfxdnkg.mongodb.net/test?retryWrites=true&w=majority';
-
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
 
 const conversationSchema = new mongoose.Schema({
     title: String,
@@ -16,9 +14,24 @@ const conversationSchema = new mongoose.Schema({
     update_time: Number
 });
 
+const youtubeHistorySchema = new mongoose.Schema({
+    header: String,
+    title: String,
+    titleUrl: String,
+    time: Date,
+    products: [String],
+    details: [{
+        name: String
+    }],
+    activityControls: [String]
+});
+
 const Conversation = mongoose.model('Conversation', conversationSchema);
+const YouTubeHistory = mongoose.model('YouTubeHistory', youtubeHistorySchema);
 
 app.use(bodyParser.json());
+
+// Conversation Routes
 
 // Get all conversation titles
 app.get('/api/titles', async (req, res) => {
@@ -72,6 +85,31 @@ app.delete('/api/conversation/:id', async (req, res) => {
         res.status(204).send();
     } catch (err) {
         console.error('Error deleting conversation:', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// YouTube History Routes
+
+// Get all YouTube watch history
+app.get('/api/youtubeHistory', async (req, res) => {
+    try {
+        const history = await YouTubeHistory.find();
+        res.json(history);
+    } catch (err) {
+        console.error('Error fetching YouTube history:', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Add new YouTube watch history
+app.post('/api/youtubeHistory', async (req, res) => {
+    try {
+        const newEntry = new YouTubeHistory(req.body);
+        await newEntry.save();
+        res.status(201).json(newEntry);
+    } catch (err) {
+        console.error('Error adding YouTube history:', err);
         res.status(500).send('Internal Server Error');
     }
 });
