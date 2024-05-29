@@ -1,27 +1,33 @@
-const mongoose = require('mongoose');
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
-const port = process.env.PORT || 3002;
+const PORT = 3002;
 
-require('dotenv').config();
-const mongoUri = process.env.MONGODB_URI;
-console.log('MongoDB URI:', mongoUri);
+// MongoDB connection string
+const mongoURI = 'mongodb+srv://mordechaipotash:6RI1JVIv0nw5wBiX@cluster0.yfxdnkg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-mongoose.connect(mongoUri)
-    .then(() => {
-        console.log('Connected to MongoDB');
-        app.listen(port, () => {
-            console.log(`Server running on port ${port}`);
-        });
-    })
-    .catch(err => {
-        console.error('Failed to connect to MongoDB', err);
-    });
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Could not connect to MongoDB', err));
 
-app.use('/api/conversations', require('./routes/conversations')); // Update the path as necessary
+const conversationSchema = new mongoose.Schema({
+    title: String,
+    create_time: Number,
+    update_time: Number
+});
 
-// Add error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
+const Conversation = mongoose.model('Conversation', conversationSchema);
+
+app.get('/api/conversations', async (req, res) => {
+    try {
+        const conversations = await Conversation.find({});
+        res.json(conversations);
+    } catch (err) {
+        console.error('Error fetching conversations:', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
