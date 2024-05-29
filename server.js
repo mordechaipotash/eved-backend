@@ -7,7 +7,7 @@ require('dotenv').config();
 const mongoUri = process.env.MONGODB_URI;
 console.log('MongoDB URI:', mongoUri);
 
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoUri)
     .then(() => {
         console.log('Connected to MongoDB');
         app.listen(port, () => {
@@ -18,7 +18,7 @@ mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
         console.error('Failed to connect to MongoDB', err);
     });
 
-app.use('/api/chathistory', require('./routes/chatHistory'));
+app.use('/api/conversations', require('./routes/conversation')); // Update the path as necessary
 
 // Add error handling middleware
 app.use((err, req, res, next) => {
